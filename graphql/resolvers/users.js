@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { UserInputError } = require('apollo-server')
 
-const { getFields, populateObject, getValue } = require('./utils.js')
+
 const { validateRegisterInput, validateLoginInput } = require('../../util/validators.js')
 const { SECRET_KEY } = require('../../config.js')
 const Users = require('../../models/user.js').UserModel
@@ -16,20 +16,44 @@ const generateToken = (user) => {
     }, SECRET_KEY, { expiresIn: '1h' });
 }
 
-const printObject = (target) => {
-    const keys = Object.getOwnPropertyNames(target)
+const chooseTarget= (target)=>{
+    switch(typeof(target)){
+        case 'undefined':
+            return `undefined`
+        case 'object':
+            return printObject(target);
+        case 'symbol':
+            if(target.iterator != undefined){
+                return printArray(target)
+            }
+        default:
+            return `${target}`
+    }
+}
+
+const printArray = (array )=>{
     let result = ""
     let i = 0
-    keys.forEach((item) => {
-        if (typeof (item) == 'object') {
-            printObject(item)
-        } else {
-            result += String(`${keys[i]}: ${item} \n`)
-        }
+    array.forEach((item)=>{
+        result = `${result} \n${i}:${chooseTarget(item)}`;
+        i++;
+    })
+    return result
+}
+
+const printObject = (object )=>{
+    const keys = Object.getOwnPropertyNames(object)
+    
+    let result = "" 
+    let i = 0
+    keys.forEach((item)=>{
+        result = `${result} \n${keys[i]}: ${chooseTarget(item)}`
         i++
     })
     return result
 }
+
+
 
 module.exports = {
     Query: {
@@ -37,26 +61,17 @@ module.exports = {
     },
     Mutation: {
         async register(
-            // root,message
-            parrent,
-
-            context, info
+           _, { registerInput:{username, email, password, confirmPassword} },__
         ) {
-            console.log('register called')
-            // try {
-            //     console.log(printObject(root))
-            // console.log(printObject(message))
-            // } catch (err) {
-            //     console.log(err)
-            // }
-            
-                const { username, email, password, confirmPassword } = context.registerInput
+           
+            // console.log('register called')
             
             //  Validate user data
             const { valid, errors } = validateRegisterInput(username, email, password, confirmPassword)
             if (!valid) {
                 throw new UserInputError('Errors', { errors })
             }
+            
 
             // Make sure user doesn't already exist
             const user = await Users.findOne({ username })
