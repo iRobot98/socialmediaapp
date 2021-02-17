@@ -1,4 +1,4 @@
-const { ApolloServer } = require('apollo-server')
+const { ApolloServer} = require('apollo-server')
 const gql = require('graphql-tag');
 const mongoose = require('mongoose')
 
@@ -7,11 +7,13 @@ const { Users: UserModel } = require('./models/user.js')
 const { MONGODB } = require('./config.js')
 const typeDefs = require('./graphql/typeDefs')
 const resolvers = require('./graphql/resolvers/index')
+const {pubsub} = require('./pubsub.js')
+
 
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: ({req}) =>({req})
+    context: ({req}) =>({req, pubsub})
 })
 
 mongoose.connect(MONGODB, { useNewUrlParser: true, useUnifiedTopology: true })

@@ -8,6 +8,8 @@ type Post{
     createdAt: String!,
     comments: [Comment]!
     likes: [Like]!
+    likeCount: Int!
+    commentCount: Int!
 }
 
 type Comment{
@@ -36,6 +38,10 @@ type User{
     token: String!,
     username: String!
     createdAt: String!
+}
+
+type Subscription{
+    newPost: Post!
 }
 
 type Query{
