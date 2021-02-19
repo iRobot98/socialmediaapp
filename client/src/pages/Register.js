@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import { Form, Button } from 'semantic-ui-react';
-import {useMutation} from '@apollo/react-hooks'
+import { useMutation } from '@apollo/react-hooks'
 import gql from 'graphql-tag';
+
+import {useForm} from '../utils/hooks'
 
 const REGISTER_USER = gql`
     mutation register(
@@ -26,76 +28,82 @@ const REGISTER_USER = gql`
 
 
 
-function Register(){
-    const [values, setValues] = useState({
-        username:'',
-        email:'',
-        password:'',
-        confirmPassword:''
+function Register(props) {
+    const {
+        onChange,
+        values,
+        errors,
+        onError,
+        onSubmit
+    } = useForm(registerUser,{
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
     })
     
-    
-    const onChange = (event)=>setValues({...values, [event.target.name]:event.target.value})
-        
-
-    const [addUser, {loading}] = useMutation(REGISTER_USER,{
-        update: (proxy, result)=>{
-            console.log(result)
+    const [addUser, { loading }] = useMutation(REGISTER_USER, {
+        update: (proxy, result) => {
+            // console.log(result)
+            props.history.push('/')
         },
         variables: values,
-        onError:(error)=>{
-            // console.log(error)
-            const {graphQLErrors, networkError, name, message} = error
-            console.log(`name: ${name}`)
-            if(graphQLErrors)console.log(`GrapgQL Error: `,graphQLErrors)
-            if(message)console.log(`ApolloError: `,message)
-            if(networkError) console.log(`Network Error: \n`,networkError.result.errors)
-        }
+        onError 
     })
-
     
-
-    const onSubmit = async (event)=>{
-        event.preventDefault()
-        await addUser()
+    function registerUser() {
+        addUser()
     }
 
-    return(
+    return (
         <div className="form-container">
-            <Form onSubmit={onSubmit} noValidate className={loading?'loading':''}>
+            <Form onSubmit={onSubmit} noValidate className={loading ? 'loading' : ''}>
                 <h1>Register</h1>
                 <Form.Input
-                label='Username'
-                name='username'
-                placeholder="Username..."
-                value={values.username}
-                onChange={onChange}
+                    label='Username'
+                    name='username'
+                    placeholder="Username..."
+                    value={values.username}
+                    onChange={onChange}
+                    error={errors.username != undefined}
                 />
                 <Form.Input
-                label='Email'
-                name='email'
-                placeholder="Email..."
-                value={values.email}
-                onChange={onChange}
+                    label='Email'
+                    name='email'
+                    placeholder="Email..."
+                    value={values.email}
+                    onChange={onChange}
+                    error={errors.email != undefined}
                 />
                 <Form.Input
-                label='Password'
-                name='password'
-                type='password'
-                value={values.password}
-                onChange={onChange}
-                
+                    label='Password'
+                    name='password'
+                    type='password'
+                    value={values.password}
+                    onChange={onChange}
+                    error={errors.password != undefined}
                 />
                 <Form.Input
-                label='Confirm Password'
-                name='confirmPassword'
-                type='password'
-                value={values.confirmPassword}
-                onChange={onChange}
-                
+                    label='Confirm Password'
+                    name='confirmPassword'
+                    type='password'
+                    value={values.confirmPassword}
+                    onChange={onChange}
+                    error={errors.password != undefined}
                 />
                 <Button type='submit' primary content='Submit' ></Button>
             </Form>
+            {
+                Object.keys(errors).length > 0 && (
+                    <div className="ui error message">
+                        <ul className='list'>
+                            {Object.values(errors).map(value => (
+                                <li key={value}>{value}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )
+            }
         </div>
     )
 }
