@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Form, Button } from 'semantic-ui-react';
-import { useMutation } from '@apollo/react-hooks'
+
 import gql from 'graphql-tag';
 
 import {useForm} from '../utils/hooks'
@@ -33,27 +33,17 @@ function Register(props) {
         onChange,
         values,
         errors,
-        onError,
-        onSubmit
-    } = useForm(registerUser,{
+        showErrors,
+        onSubmit,
+        loading
+    } = useForm(REGISTER_USER,props,{
         username: '',
         email: '',
         password: '',
         confirmPassword: ''
     })
     
-    const [addUser, { loading }] = useMutation(REGISTER_USER, {
-        update: (proxy, result) => {
-            // console.log(result)
-            props.history.push('/')
-        },
-        variables: values,
-        onError 
-    })
     
-    function registerUser() {
-        addUser()
-    }
 
     return (
         <div className="form-container">
@@ -94,15 +84,7 @@ function Register(props) {
                 <Button type='submit' primary content='Submit' ></Button>
             </Form>
             {
-                Object.keys(errors).length > 0 && (
-                    <div className="ui error message">
-                        <ul className='list'>
-                            {Object.values(errors).map(value => (
-                                <li key={value}>{value}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )
+                showErrors()
             }
         </div>
     )

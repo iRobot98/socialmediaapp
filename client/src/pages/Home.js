@@ -1,34 +1,33 @@
-import React from 'react'
-import { Grid, Image, Transition } from 'semantic-ui-react'
 import { useQuery } from '@apollo/react-hooks'
-import gql from 'graphql-tag'
+import React, { useContext, useState } from 'react'
+import { Grid } from 'semantic-ui-react'
 
-import PostCard from "../components/postCard.js";
 
-const FETCH_POSTS_QUERY = gql`
-    {
-        getPosts{
-            id body createdAt username likeCount
-            likes {
-                username
-            }
-            commentCount
-            comments{
-                id username createdAt body 
-            }
-        }
-    }
-`
+
+import PostForm, {Posts} from '../components/PostForm.js'
+import { AuthContext } from '../context/auth'
+import { FETCH_POSTS_QUERY } from '../utils/graphQL'
+
+
+// const getProxyPosts = ()=>{
+
+//     const data = proxy.readQuery({
+//         query: FETCH_POSTS_QUERY  
+//       })
+//     return data.getPosts 
+// }
+
+
+
+
 
 function Home() {
-    const { data, loading, error }  = useQuery(FETCH_POSTS_QUERY)
-    // if(!result.loading){
-    //     console.log(result.data.getPosts)
-    // }
-    // if (data) {
-    //     console.log(data.getPosts)
-    // }
-    if(error){
+    const { data, loading, error } = useQuery(FETCH_POSTS_QUERY)
+    const { user } = useContext(AuthContext)
+
+    
+    
+    if (error) {
         console.log(error)
         return 'error'
     }
@@ -38,13 +37,13 @@ function Home() {
             Recent Posts
       </Grid.Row>
         <Grid.Row>
+            {user && (
+                <Grid.Column>
+                    <PostForm />
+                </Grid.Column>
+            )}
             {loading && <h1>Loading posts..</h1>}
-            {data &&
-                  data.getPosts.map((post) => (
-                    <Grid.Column key={post.id} style={{ marginBottom: 20 }}>
-                      <PostCard post={post} />
-                    </Grid.Column>
-                  ))}
+            {data && <Posts data={data}/>}
         </Grid.Row>
     </Grid>
     )
