@@ -8,13 +8,15 @@ import { LikeButton, CommentButton, DeleteButton} from './buttons'
 
 
 
-export const ButtonShorthand = ({post:{likes, comments, likeCount, commentCount, id, username:postUsername} }) => {
+export const ButtonShorthand = ({post:{likes, comments, likeCount, commentCount, id, username:postUsername}, inputRef }) => {
     const { user } = useContext(AuthContext)
+    //  console.log('ButtonShorthand rendered')
+    //  console.log('inputRef:', inputRef)
     
     return (
         <div>
             <LikeButton  post={{id, likes, likeCount}} />
-            <CommentButton post={{id, comments, commentCount}} id={id}  />
+            <CommentButton post={{id, comments, commentCount}} id={id} inputRef={inputRef} />
             {user && user.username === postUsername && <DeleteButton post={{id, postUsername}} />}
             
         </div>

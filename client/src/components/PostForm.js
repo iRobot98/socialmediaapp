@@ -24,7 +24,7 @@ const renderPosts = (data) => {
 
 export let setPosts = () => { }
 
-export function Posts({ }) {
+export function Posts({}) {
     
     
     const readPosts = () => client.readQuery({

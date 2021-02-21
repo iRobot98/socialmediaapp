@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect, useRef } from 'react'
 import { Button, Confirm } from 'semantic-ui-react'
 import { Link, useHistory } from 'react-router-dom';
 import { useMutation, useQuery } from '@apollo/react-hooks'
@@ -57,7 +57,7 @@ export const LikeButton = ({ post: { id, likes, likeCount: lkCount } }) => {
                 content: `${likeCount}`,
             })
         } catch (err) {
-            console.log(err)
+            // console.log(err)
         }
 
     }
@@ -75,20 +75,34 @@ export const LikeButton = ({ post: { id, likes, likeCount: lkCount } }) => {
     )
 }
 
-const commentOnPost = (history,  id) => {
+const commentOnPost = (history,  id, inputRef) => {
+    
+    // console.log('CommentOnPost called')
+    // console.log('inputRef:', inputRef)
+    
+    
+    const setFocus = ()=>{
+        if(inputRef.current) inputRef.current.select()
+        
+    }
     
     if( history.location.pathname.startsWith('/post/')){
         if(confirmLogin().user) return ()=>history.push(`/login`)
         
+        
+        return setFocus
     }else return ()=>{
         history.push(`/post/${id}`)
         
     }
 }
 
-export const CommentButton = ({ post: { commentCount, id } }) => {
+export const CommentButton = ({ post: { commentCount, id }, inputRef }) => {
     const { user } = useContext(AuthContext)
     const history = useHistory()
+    // console.log('CommentButton rendered')
+    // console.log('inputRef:', inputRef)
+    const hold = useState(useRef())
   
     // useEffect()
     return (<Button
@@ -104,7 +118,7 @@ export const CommentButton = ({ post: { commentCount, id } }) => {
         }}
         // onClick={commentOnPost}
         as={Link} to={user ? (`/post/${id}`) : ('/login')}
-        onClick={confirmLogin().user  ? (commentOnPost(history, id)) : redirToLogin(history)}
+        onClick={confirmLogin().user  ? (commentOnPost(history, id, inputRef,hold)) : redirToLogin(history)}
     />)
 
 }
@@ -133,7 +147,7 @@ export const DeleteButton = ({ post }) => {
            
         },
         onError: (err) => {
-            console.log(err)
+            // console.log(err)
             history.push(`/`)
         }
     })

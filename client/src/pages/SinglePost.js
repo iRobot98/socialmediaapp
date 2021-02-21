@@ -25,10 +25,11 @@ function redirToLogin(history) {
 
 }
 
-const Post = ({ postData }) => {
+const Post = ({ postData , inputRef}) => {
     const { id, body, username, createdAt } = postData
     
-    
+    // // console.log('Post rendered')
+    // // console.log('inputRef:', inputRef)
     return (
         <Grid>
             <Grid.Row>
@@ -49,10 +50,10 @@ const Post = ({ postData }) => {
                             </Card.Description>
                         </Card.Content>
                         <Card.Content extra>
-                            <ButtonShorthand post={postData} />
+                            <ButtonShorthand post={postData} inputRef={inputRef}/>
                         </Card.Content>
                     </Card>
-                    <Comments post={postData}  />
+                    <Comments post={postData} inputRef={inputRef} />
                 </Grid.Column>
             </Grid.Row>
         </Grid>
@@ -61,7 +62,9 @@ const Post = ({ postData }) => {
 
 
 function SinglePost(props) {
-
+    // // console.log('SinglePost rendered' )
+    const inputRef = useRef()
+    // console.log('inputRef:', inputRef)
     const params = props.match.params
     const postId = params.postId
     const { loading, data, error } = useQuery(GET_POST_QUERY, {
@@ -72,7 +75,7 @@ function SinglePost(props) {
 
     const getPost = () => {
         const postData = data.getPost
-        return <Post postData={postData} />
+        return <Post postData={postData} inputRef={inputRef}/>
     }
 
     return (

@@ -1,7 +1,7 @@
 import moment from "moment"
 import React, { useContext, useState, useRef } from 'react'
 import { useHistory } from 'react-router-dom';
-import { Button, Confirm, Form, Card, Transition } from 'semantic-ui-react'
+import { Button, Confirm, Form, Card, Transition, Input } from 'semantic-ui-react'
 import { useMutation } from '@apollo/client';
 
 
@@ -47,7 +47,7 @@ function DeleteComment({ postId, commentId }) {
                 })
                 refreshComments()
             }catch(err){
-                console.log(err)
+                // console.log(err)
             }
             
             // history.push(`/post/${postId}`)
@@ -55,13 +55,13 @@ function DeleteComment({ postId, commentId }) {
         client,
         onError: (err) => {
             
-            console.log('error')
-            console.log(err)
+            // console.log('error')
+            // console.log(err)
         }
     })
     // const delComment = async()=>{
     //     const d= await deleteComment()
-    //     console.log(d)
+    //     // console.log(d)
     //     return d
     // }
 
@@ -84,12 +84,14 @@ function DeleteComment({ postId, commentId }) {
     )
 }
 
-export function Comments({ post,   }) {
+export function Comments({ post,  inputRef }) {
     const sortComments = (cmmnts)=>{
         return cmmnts.sort((a, b)=>{
             return  moment(b.createdAt) - moment(a.createdAt)
         })
     }
+    // console.log('Comments rendered')
+    // console.log('inputRef:', inputRef)
     const { comments: cmnts, id } = post
     const { user } = useContext(AuthContext)
     const [comments, setComments] = useState(sortComments(cmnts))
@@ -104,12 +106,13 @@ export function Comments({ post,   }) {
         
         return setComments(sortComments(comments))
     }
+    // refreshComments()
     return (
         <div>
             <Transition.Group duration={200}>
-            <CommentForm post={post}  />
+            <CommentForm post={post} inputRef={inputRef} />
             {comments && comments.map(c => (
-                <Card fluid>
+                <Card fluid key={c.id}>
                     <Card.Content>
                         <Card.Header>{c.username}</Card.Header>
                         <Card.Meta >{moment(c.createdAt).fromNow(true)}</Card.Meta>
@@ -144,8 +147,9 @@ const showErrors = (e) => (
 )
 
 const CommentForm = (props) => {
-    
-    
+    let inputRef = props.inputRef
+    // console.log('CommentForm rendered')
+    // console.log('inputRef:', inputRef)
     const postId = props.post.id
     const history = useHistory()
     
@@ -175,28 +179,35 @@ const CommentForm = (props) => {
         });
         values.body = ''
         refreshComments()
-        history.push(`/post/${postId}`)
+        // inputRef.current.blur()
     })
+    
 
     return (confirmLogin().user &&
         <>
-            <Form onSubmit={onSubmit} >
+            <Form onSubmit={onSubmit}   >
+            {/* {// console.log('Form rendered'),
+    // console.log('inputRef:', inputRef)} */}
                 <h4 style={{ marginBottom: '1rem' }}>Comment</h4>
-                <Form.Field>
-                    <Form.Input
+                <Form.Field >
+                    <Input
+                        style={{marginBottom:20}}
                         placeholder='Comment...'
                         name='body'
                         onChange={onChange}
                         value={values.body}
                         error={error != undefined}
                         
-                        
+                                ref={inputRef}               
                     />
-                    
-                    <Button type='submit' content='Post' />
+                     {/* { console.log('Input rendered'), 
+    // console.log('inputRef:', inputRef)} */}
+                    <Button type='submit' content='Comment' />
                 </Form.Field>
 
             </Form>
+            {/* {// console.log('After Form rendered'),
+    // console.log('ref:', ref2)} */}
             {error && error.graphQLErrors && showErrors(error.graphQLErrors)}
         </>
     )
